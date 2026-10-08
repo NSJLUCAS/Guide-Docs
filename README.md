@@ -19,6 +19,8 @@ npm run preview
 
 可选 `npm run test:browser` 使用 Playwright 在隔离 Chromium 中运行全部页面刷新、搜索、目录、手机和主题检查。先通过 build 和 preview，测试默认连接上述4186端口；用 `DOCS_PREVIEW_URL` 配置其他地址。若环境没有 Playwright，单独安装测试工具，或用 `DOCS_PLAYWRIGHT_MODULE` 指向已安装模块，不需要加入生产依赖。截图用 `DOCS_TEST_OUTPUT` 指向私有目录。
 
+开发入口回归可用 `npm run test:dev`，默认连接 `http://127.0.0.1:5198`（先启动 `npm run dev -- --port 5198`），也可用 `DOCS_DEV_URL` 修改地址。
+
 ## Cloudflare Pages 配置
 
 创建独立 **Pages** GitHub 集成项目，连接 `NSJLUCAS/Guide`：

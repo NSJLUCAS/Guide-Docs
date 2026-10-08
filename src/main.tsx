@@ -8,8 +8,7 @@ const root = document.getElementById("root")!
 const path = toPath(location.pathname)
 const app = <StrictMode><App url={path} /></StrictMode>
 
-// Every route is prerendered, so hydration is the normal case. A path that was
-// not prerendered -- an old link or a typo -- arrives at 404.html with empty
-// markup.
-if (root.firstChild) hydrateRoot(root, app)
+// Static pages (including 404) have rendered elements. The dev template only
+// has a comment placeholder, which is a firstChild but cannot be hydrated.
+if (root.childElementCount) hydrateRoot(root, app)
 else createRoot(root).render(app)
