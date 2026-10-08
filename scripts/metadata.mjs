@@ -1,4 +1,10 @@
 export const escapeHtml = value => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+export function renderTemplate(template, page, markup, origin) {
+  return template.replace('<!--app-html-->', () => markup)
+    .replace(/<title>.*?<\/title>/, () => `<title>${escapeHtml(page.title)}</title>`)
+    .replace(/(<meta name="description" content=").*?(")/, (_, start, end) => start + escapeHtml(page.desc) + end)
+    .replace('<!--page-meta-->', () => pageHead(page, origin))
+}
 export function pageHead(page, origin) {
   const title = escapeHtml(page.title)
   const description = escapeHtml(page.desc)

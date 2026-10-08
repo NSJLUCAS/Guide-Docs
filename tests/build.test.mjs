@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { validateLinks } from '../scripts/validate-links.mjs'
 import { resolveOrigin } from '../scripts/config.mjs'
 import { searchText } from '../scripts/content-index.mjs'
-import { pageHead } from '../scripts/metadata.mjs'
+import { pageHead, renderTemplate } from '../scripts/metadata.mjs'
 
 test('rejects a missing route and fragment, accepts encoded heading and static file', async () => {
   const dist = await mkdtemp(join(tmpdir(), 'guide-docs-links-'))
@@ -56,4 +56,13 @@ test('404 and unconfigured local build cannot become indexable production pages'
   assert.match(head, /content="noindex"/)
   assert.doesNotMatch(head, /canonical|og:url/)
   assert.match(pageHead({ ...page, preview: true }, 'https://preview.example.pages.dev'), /content="noindex"/)
+})
+
+test('prerender preserves shell dollar sequences instead of expanding replacement tokens', () => {
+  const template = '<title>old</title><meta name="description" content="old"><!--page-meta--><div><!--app-html--></div>'
+  const markup = "<pre>grep 'install-guide[.]sh$' $& $$</pre>"
+  const html = renderTemplate(template, { path: '/', title: 'Guide $&', desc: 'literal $\'' }, markup, '')
+  assert.ok(html.includes('<div>' + markup + '</div>'))
+  assert.ok(html.includes('<title>Guide $&amp;</title>'))
+  assert.ok(html.includes('content="literal $\'"'))
 })

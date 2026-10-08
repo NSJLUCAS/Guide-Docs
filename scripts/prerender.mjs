@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { render, routes, siteOrigin, contentPages, previewBuild } from '../dist-ssr/entry-server.js'
-import { pageHead, escapeHtml } from './metadata.mjs'
+import { renderTemplate, escapeHtml } from './metadata.mjs'
 import { validateLinks } from './validate-links.mjs'
 import { collectLicenses } from './licenses.mjs'
 
@@ -12,11 +12,7 @@ const contentPaths = Object.keys(contentPages)
 const docs = routes.filter(route => route.path !== '/')
 if (docs.length !== contentPaths.length || docs.some(route => !contentPaths.includes(route.path))) throw new Error('Navigation and MDX pages must match exactly')
 if (new Set(routes.map(route => route.path)).size !== routes.length) throw new Error('Duplicate route')
-const renderPage = page => template
-  .replace('<!--app-html-->', render(page.path))
-  .replace(/<title>.*?<\/title>/, `<title>${escapeHtml(page.title)}</title>`)
-  .replace(/(<meta name="description" content=").*?(")/, `$1${escapeHtml(page.desc)}$2`)
-  .replace('<!--page-meta-->', pageHead({ ...page, preview: previewBuild }, siteOrigin))
+const renderPage = page => renderTemplate(template, { ...page, preview: previewBuild }, render(page.path), siteOrigin)
 
 for (const route of routes) {
   const html = renderPage(route)
