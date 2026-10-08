@@ -1,0 +1,112 @@
+const assert = require('node:assert/strict')
+const path = require('node:path')
+const fs = require('node:fs/promises')
+const { chromium } = require(process.env.DOCS_PLAYWRIGHT_MODULE || 'playwright')
+
+;(async () => {
+  const base = process.env.DOCS_PREVIEW_URL || 'http://127.0.0.1:4186'
+  const { routes } = await import('../dist-ssr/entry-server.js')
+  const browser = await chromium.launch({ headless: true })
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, colorScheme: 'light' })
+  const page = await context.newPage()
+  const errors = []
+  page.on('pageerror', error => errors.push(error.message))
+  page.on('console', message => { if (['warning', 'error'].includes(message.type()) && !message.text().includes('404 (Not Found)')) errors.push(message.text()) })
+  const overflow = async () => assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `Horizontal overflow: ${page.url()}`)
+  const screenshot = async name => {
+    if (!process.env.DOCS_TEST_OUTPUT) return
+    await fs.mkdir(process.env.DOCS_TEST_OUTPUT, { recursive: true })
+    await page.screenshot({ path: path.join(process.env.DOCS_TEST_OUTPUT, name + '.png'), fullPage: true })
+  }
+  try {
+    for (const route of routes) {
+      const response = await page.goto(base + route.path)
+      assert.equal(response.status(), 200, route.path)
+      await page.locator('main h1').waitFor()
+      assert.equal(await page.title(), route.title)
+      assert.equal(await page.locator('main h1').count(), 1)
+      assert.ok((await page.locator('main').innerText()).length > 80)
+      await overflow()
+      assert.equal((await page.reload()).status(), 200, 'Refresh: ' + route.path)
+      await page.locator('main h1').waitFor()
+    }
+    console.log(`PASS: ${routes.length} pages, direct requests and refresh, desktop widths`)
+    await page.goto(base + '/usage/categories/?from=test')
+    assert.equal(new URL(page.url()).pathname, '/usage/categories')
+    assert.equal(new URL(page.url()).search, '?from=test')
+    await page.goto(base + '/usage/categories.html')
+    assert.equal(new URL(page.url()).pathname, '/usage/categories')
+    assert.equal((await page.goto(base + '/missing-page')).status(), 404)
+    assert.match(await page.locator('main h1').innerText(), /页面未找到/)
+    assert.equal(await page.locator('meta[name="robots"]').getAttribute('content'), 'noindex')
+    console.log('PASS: nested/slash/query/extension URLs and genuine 404')
+
+    await page.goto(base + '/')
+    await screenshot('home-light-desktop')
+    await page.keyboard.press('Control+k')
+    const search = page.getByRole('textbox', { name: '搜索文档关键词' })
+    await search.fill('sudo sh ./install-guide.sh --check')
+    await page.getByRole('dialog').getByRole('button').filter({ hasText: '升级与回退' }).waitFor()
+    await page.keyboard.press('Enter')
+    await page.waitForURL('**/maintenance/upgrade')
+    await page.getByRole('button', { name: '搜索文档', exact: true }).click()
+    await search.fill('空白名单')
+    await page.getByRole('dialog').getByRole('button').filter({ hasText: '登录与安全' }).waitFor()
+    await page.keyboard.press('Escape')
+    assert.equal(await page.getByRole('dialog').count(), 0)
+    await page.goto(base + '/usage/categories')
+    await page.locator('aside').last().getByRole('link', { name: '顺序与空分类', exact: true }).click()
+    assert.ok(decodeURIComponent(new URL(page.url()).hash).includes('顺序与空分类'))
+    console.log('PASS: command/full-text Chinese search, keyboard, table of contents')
+
+    await page.getByRole('button', { name: '切换主题' }).click()
+    assert.equal(await page.locator('html').evaluate(el => el.classList.contains('dark')), true)
+    await page.reload()
+    assert.equal(await page.locator('html').evaluate(el => el.classList.contains('dark')), true)
+    await screenshot('categories-dark-desktop')
+    await page.getByRole('button', { name: '切换主题' }).click()
+    assert.equal(await page.locator('html').evaluate(el => el.classList.contains('dark')), false)
+    console.log('PASS: dark/light and preference survives refresh')
+
+    for (const width of [375, 768]) {
+      await page.setViewportSize({ width, height: 812 })
+      for (const route of routes) {
+        await page.goto(base + route.path)
+        await page.locator('main h1').waitFor()
+        await overflow()
+      }
+    }
+    await page.setViewportSize({ width: 375, height: 812 })
+    await page.goto(base + '/usage/icons')
+    await screenshot('icons-light-mobile')
+    const menu = page.getByRole('button', { name: '目录', exact: true })
+    await menu.click()
+    assert.equal(await page.getByRole('dialog').count(), 1)
+    await page.keyboard.press('Escape')
+    assert.equal(await page.getByRole('dialog').count(), 0)
+    assert.equal(await menu.evaluate(el => el === document.activeElement), true)
+    await menu.click()
+    await page.getByRole('dialog').getByRole('link', { name: '分类管理', exact: true }).click()
+    await page.waitForURL('**/usage/categories')
+    assert.equal(await page.getByRole('dialog').count(), 0)
+    await page.locator('summary').filter({ hasText: '本页内容' }).click()
+    await page.locator('details').getByRole('link', { name: '网站数量', exact: true }).click()
+    assert.ok(decodeURIComponent(new URL(page.url()).hash).includes('网站数量'))
+    await page.getByRole('button', { name: '切换主题' }).click()
+    await screenshot('categories-dark-mobile')
+    await overflow()
+    console.log('PASS: all pages at 375/768px, drawer Escape/focus/navigation, mobile TOC')
+
+    const plain = await browser.newContext({ javaScriptEnabled: false })
+    const nojs = await plain.newPage()
+    for (const route of ['/usage/categories', '/install/deployment']) {
+      assert.equal((await nojs.goto(base + route)).status(), 200)
+      assert.ok((await nojs.locator('.prose').innerText()).length > 300)
+    }
+    assert.equal((await nojs.goto(base + '/not-a-route')).status(), 404)
+    assert.match(await nojs.locator('main h1').innerText(), /页面未找到/)
+    await plain.close()
+    assert.deepEqual(errors, [], 'Browser warnings/errors')
+    console.log('PASS: pre-rendered content and 404 without JavaScript, clean browser console')
+  } finally { await browser.close() }
+})().catch(error => { console.error(error); process.exitCode = 1 })

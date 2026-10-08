@@ -1,0 +1,67 @@
+Guide 实例与文档站的部署是两件事：这里安装你自己的 Guide 实例；文档站本身是 Cloudflare Pages 上的纯静态资源。
+
+## 支持范围
+
+官方安装/升级器支持 **Linux x86_64、兼容 glibc、systemd**，需要 root、Python 3.8+、curl、systemd 工具、runuser/useradd、id/getconf/uname/sh。安装器不自动安装这些依赖。
+
+ARM、Windows、Alpine/musl、OpenRC 和容器内升级不受支持。Guide 没有已发布的官方 Docker 镜像。正式 GNU 二进制不能直接放进需要 musl 二进制的 scratch 镜像。
+
+## 首次安装
+
+确认没有旧 Guide 实例及旧数据库。在空下载目录获取安装器和清单，校验成功后才执行：
+
+```sh
+curl -fsSL https://github.com/NSJLUCAS/Guide/releases/latest/download/install-guide.sh -o install-guide.sh &&
+curl -fsSL https://github.com/NSJLUCAS/Guide/releases/latest/download/sha256sums.txt -o sha256sums.txt &&
+grep -E '^[[:xdigit:]]{64}  install-guide[.]sh$' sha256sums.txt > install-guide.sh.sha256 &&
+sha256sum --check install-guide.sh.sha256 &&
+sudo sh ./install-guide.sh
+```
+
+下载期间 latest 可能切换。校验失败立即停止，在新的空目录重新下载整组文件；不跳过校验，不混用旧清单。安装器内部解析稳定 tag 并固定该 tag 获取后续资产。
+
+## 默认目录与访问
+
+| 项目 | 默认值 |
+| --- | --- |
+| 程序 | `/opt/guide/guide-hub` |
+| 数据库 | `/var/lib/guide/guide.db` |
+| systemd 服务 | `/etc/systemd/system/guide.service` |
+| 升级器入口 | `/usr/local/sbin/guide-update` |
+| 监听地址 | `127.0.0.1:28080` |
+
+首次安装创建专用 guide 用户并初始化本实例随机应急密码。记录保存在终端中的密码应按敏感信息处理。进入 `/admin/` 后立即改密；公网使用[HTTPS 反向代理](/install/reverse-proxy)。
+
+## 已有实例
+
+**不要执行首次安装代码块来接入已有实例。**已有受支持的 `guide.service`（包括 v1.0.0）不需要预先安装 guide-update。先按[升级与回退](/maintenance/upgrade#旧实例首次接入)下载、校验并运行 `--check`；只有识别到原版本和原路径后才继续。
+
+其他服务名、手工启动、wrapper、容器或路径不明确时，安装器不能自动接管。`not installed` 不意味着没有旧数据库。停止操作并阅读[官方旧部署迁移规则](https://github.com/NSJLUCAS/Guide/blob/main/docs/deployment/INSTALL.md#从-v100-首次接入-updater)，不能删除旧数据让检查通过。
+
+## 手动部署
+
+在空暂存目录下载归档及两个 SHA 来源，均校验成功才解包：
+
+```sh
+curl -fsSL https://github.com/NSJLUCAS/Guide/releases/latest/download/guide-linux-x86_64.tar.gz -o guide-linux-x86_64.tar.gz &&
+curl -fsSL https://github.com/NSJLUCAS/Guide/releases/latest/download/guide-linux-x86_64.tar.gz.sha256 -o guide-linux-x86_64.tar.gz.sha256 &&
+curl -fsSL https://github.com/NSJLUCAS/Guide/releases/latest/download/sha256sums.txt -o sha256sums.txt &&
+grep -E '^[[:xdigit:]]{64}  guide-linux-x86_64[.]tar[.]gz$' sha256sums.txt > archive.sha256 &&
+sha256sum --check guide-linux-x86_64.tar.gz.sha256 &&
+sha256sum --check archive.sha256 &&
+tar -xzf guide-linux-x86_64.tar.gz
+```
+
+安装程序到可执行目录，为实际服务用户准备可写的持久数据库目录。正式包已内嵌后台与导航，不需要独立 Node.js 服务。手动启动示例：
+
+```sh
+/opt/guide/guide-hub --listen 127.0.0.1:28080 --db /var/lib/guide/guide.db
+```
+
+示例路径须与实际部署一致，已有实例必须使用原数据库。systemd 示例与完整权限说明见[官方 INSTALL](https://github.com/NSJLUCAS/Guide/blob/main/docs/deployment/INSTALL.md)。
+
+固定历史版本时从对应 Release 下载同一 tag 的附件，不混用 latest。v1.0.0 仅归档及独立 SHA，按历史例外手动部署；下载历史版本安装器仍不会固定其运行时选择的 Hub 版本。
+
+## 从源码构建
+
+需要 Linux、Rust 1.99.0、Node.js 24/npm、sh 及 C 编译工具。先构建同级 `navigation-theme` 和 `guide/web-admin`，再构建 `guide`；完整命令见[公开 README](https://github.com/NSJLUCAS/Guide#从源码构建)。输出为 `guide/target/release/guide-hub`。Windows 不是现有完整 Rust 构建验证平台。

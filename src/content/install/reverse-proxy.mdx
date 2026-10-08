@@ -1,0 +1,30 @@
+默认安装仅监听 `127.0.0.1:28080`。需要域名访问时，在自己的服务器上配置 HTTPS 反向代理，把请求转到 Guide 的真实监听地址。文档站的 Cloudflare Pages 域名不承担 Guide 后台代理。
+
+## 配置前核对
+
+确认域名和 DNS 管理权、现有 Nginx/Caddy、80/443 端口与证书覆盖范围。优先复用现有代理，仅调整目标站点，不能覆盖其他网站或启动第二个代理争抢端口。
+
+代理和 Guide 同机时，上游通常为 `http://127.0.0.1:28080`；代理在另一机器或网络命名空间时，先核对实际可达上游，不能机械套用 loopback 地址。
+
+## 请求与登录
+
+保留 `/`、`/admin/`、`/api/` 及 OAuth 回调路径。转发正确的 Host 与 `X-Forwarded-Proto`；管理和 API 请求不要套用公共页面缓存，也不要擅自改成子路径部署。
+
+若实例显式配置 `--site http://...`，它会优先于代理协议头，可能使 HTTPS 登录 Cookie 不带 Secure。核对并按真实 HTTPS 地址调整服务配置，保留原 DB 和其他参数。
+
+## Cloudflare 代理
+
+Cloudflare 代理是可选的。启用时使用 **Full (strict)**，确保源站 443 可达，证书有效、域名匹配且符合信任要求。不要用 Flexible、关闭验证或 `curl -k` 掩盖证书错误。
+
+Origin CA 证书通常不被浏览器直接信任；关闭 Cloudflare 代理后的源站直连需要公共受信任证书或适当的客户端信任配置。代理到同机 Guide 的 loopback 可以继续使用 HTTP。
+
+## 配置与验证顺序
+
+1. 保存现有站点配置，准备最小修改及回退方法。
+2. 配置目标域名的证书和反代，保留原有服务。
+3. 按现有服务路径运行 `nginx -t` 或 `caddy validate`，通过后平滑 reload。
+4. 分别验证 Guide 上游、源站 HTTPS 和最终域名。
+5. 检查首页、后台登录、`/api/public-config`、无循环跳转或混合内容，原站点仍可访问。
+6. 启用 GitHub OAuth 时核对回调域名，并确认 HTTPS 登录 Cookie 的 Secure 属性，不记录 Cookie 值。
+
+完整代理、证书与 Cloudflare 操作规则见 [Guide AI 部署指南](https://github.com/NSJLUCAS/Guide/blob/main/docs/deployment/AI_DEPLOYMENT.md#可选https-域名与反向代理)。涉及已有服务、DNS 或共享配置修改时，先说明影响并取得管理员确认。

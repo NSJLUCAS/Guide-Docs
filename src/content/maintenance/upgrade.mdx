@@ -1,0 +1,53 @@
+正式更新说明以 [GitHub Releases](https://github.com/NSJLUCAS/Guide/releases) 为准。升级前确认目标版本限制、实际数据库路径及可恢复的一致性备份。
+
+## 已接入升级器
+
+```sh
+sudo guide-update --check
+sudo guide-update
+```
+
+先运行第一条只读检查，确认当前与 latest；需要升级时再执行第二条。`--check` 不下载或 self-update，不修改服务、数据库或安装文件。当前高于 latest 时不会自动降级。
+
+官方升级器先校验下载、归档白名单和候选版本，再停止服务；停服后备份实际 DB、存在的 WAL/SHM 与旧二进制，保留原 unit 和实例设置。启动失败时尝试整体恢复，详细范围见[官方 INSTALL](https://github.com/NSJLUCAS/Guide/blob/main/docs/deployment/INSTALL.md)。
+
+## 旧实例首次接入
+
+已有受支持的 `guide.service`，包括 v1.0.0，不需要预先存在 updater。在空下载目录下载并校验安装器后，只读检查：
+
+```sh
+curl -fsSL https://github.com/NSJLUCAS/Guide/releases/latest/download/install-guide.sh -o install-guide.sh &&
+curl -fsSL https://github.com/NSJLUCAS/Guide/releases/latest/download/sha256sums.txt -o sha256sums.txt &&
+grep -E '^[[:xdigit:]]{64}  install-guide[.]sh$' sha256sums.txt > install-guide.sh.sha256 &&
+sha256sum --check install-guide.sh.sha256 &&
+sudo sh ./install-guide.sh --check
+```
+
+必须核对显示原实例版本，以及受支持的直接绝对 ExecStart、原 DB、监听地址和已加载 unit/drop-in。路径或 namespace 不明确、DB 不存在、配置未 reload 等情况应先解决，不猜测创建新库。
+
+识别原实例后再单独执行：
+
+```sh
+sudo sh ./install-guide.sh
+sudo guide-update --check
+```
+
+如果显示 `not installed`、路径错误或未识别原实例，立即停止。其他服务名、手工启动、wrapper 和容器不能自动接管，按[人工迁移规则](https://github.com/NSJLUCAS/Guide/blob/main/docs/deployment/INSTALL.md#从-v100-首次接入-updater)处理。不要删除旧 DB/WAL/SHM 或改名程序来让安装通过。
+
+## 分类数据库迁移
+
+v1.1.0 使用 schema 13，v1.2.0 首次启动自动迁移到 schema 14，无需手工 SQL。新分类表导入旧分类，保留网站、网站排序、原分类字符串、检测及实例设置，分类导入和版本更新同事务完成。
+
+分类顺序此后独立维护，支持空分类。重复迁移不重置管理顺序；旧 Service API 继续兼容。已有管理分类时拒绝恢复缺少分类表的旧备份，不删除分类绕过保护。
+
+## 失败与回退
+
+升级器保留数据库和二进制两份备份位置，不自动清理旧备份。正常失败尽力整体回滚；SIGKILL、断电或磁盘故障不能保证自动恢复。遇到 CRITICAL 时按报告路径与官方恢复流程人工处理。
+
+跨 schema 手工回退必须先停止并确认服务退出，保存当前状态，然后恢复**升级前完整数据库快照（包括相应 WAL/SHM）和旧二进制**。不能只换回旧二进制或仅复制活动数据库主文件。
+
+快照恢复会舍弃备份后的修改，先另存需要保留的数据。不要用运行中的数据库恢复；路径、权限和侧文件须按[数据备份](/maintenance/backup)与官方规则核对。
+
+## 升级后验证
+
+检查实际版本、服务状态、原数据库路径、后台登录、原网站/分类/图标配置、导航布局与检测。再验证最终域名 HTTPS。下载历史安装器并不固定历史 Hub，它仍选择运行时 latest；需要历史版本时按安装页手动部署。
