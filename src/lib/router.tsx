@@ -7,7 +7,10 @@ import { cn } from "@/lib/utils"
 export const BASE = __BASE__
 export const href = (p: string) => (p === "/" ? BASE : BASE + p.replace(/^\//, ""))
 export const toPath = (loc: string) => {
-  const p = loc.startsWith(BASE) ? "/" + loc.slice(BASE.length) : loc
+  let decoded: string
+  try { decoded = decodeURIComponent(loc) }
+  catch { return loc } // malformed escapes remain an unmatched route
+  const p = decoded.startsWith(BASE) ? "/" + decoded.slice(BASE.length) : decoded
   return p.replace(/\/+$/, "") || "/"
 }
 

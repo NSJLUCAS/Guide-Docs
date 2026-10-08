@@ -15,7 +15,7 @@ included in the static dependency notices. Lucide icon notices include both its
 ISC and upstream Feather MIT sections. Inter font has its SIL Open Font License.
 
 Builds collect the original license/notice files from the exact installed npm
-packages included in the browser bundle (plus the bundled font). These texts are
+packages included in the browser bundle (including CSS packages and the bundled font). These texts are
 distributed in DEPENDENCY_LICENSES.txt; build tooling is not part of the browser
 runtime. Missing license text for a bundled package stops the build.
 

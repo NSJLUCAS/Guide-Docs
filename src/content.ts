@@ -1,4 +1,5 @@
 import type { ComponentType } from "react"
+import indexUrl from "virtual:search-index"
 
 // One eager glob constitutes the whole page table: the pages together weigh less
 // than a screenshot, and eager loading means navigation never waits.
@@ -11,7 +12,10 @@ export const pages: Record<string, ComponentType> = Object.fromEntries(
   Object.entries(mods).map(([file, m]) => [file.replace(/^\.\/content|\.mdx$/g, ""), m.default]),
 )
 
-/** Plain-text bodies keyed by route, built by the searchIndex() plugin. Imported
- *  dynamically, so it costs nothing until search is opened. */
-export const loadIndex = () =>
-  import("virtual:search-index").then((m) => m.default as Record<string, string>)
+/** Fetch the static index only when search opens. Fetch can retry a failed
+ *  request, unlike an import whose first rejection is cached by the browser. */
+export async function loadIndex(): Promise<Record<string, string>> {
+  const response = await fetch(indexUrl)
+  if (!response.ok) throw new Error(`Search index: HTTP ${response.status}`)
+  return response.json()
+}

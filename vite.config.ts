@@ -56,21 +56,33 @@ function searchIndex(): Plugin {
   const id = "virtual:search-index"
   const resolved = "\0" + id
   const dir = join(import.meta.dirname, "src", "content")
+  const indexJson = async () => {
+    const files = (await readdir(dir, { recursive: true })).filter((f) => f.endsWith(".mdx"))
+    const entries = await Promise.all(files.map(async (f) => [
+      "/" + f.replace(/\.mdx$/, "").replaceAll("\\", "/"),
+      searchText(await readFile(join(dir, f), "utf8")),
+    ]))
+    return JSON.stringify(Object.fromEntries(entries))
+  }
+  let dev = false
   return {
     name: "search-index",
+    configResolved(config) { dev = config.command === "serve" },
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (req.url?.split("?")[0] !== base + "search-index.json") return next()
+        try {
+          res.setHeader("Content-Type", "application/json; charset=utf-8")
+          res.end(await indexJson())
+        } catch (error) { next(error) }
+      })
+    },
     resolveId: (s) => (s === id ? resolved : null),
     async load(i) {
       if (i !== resolved) return
-      const files = (await readdir(dir, { recursive: true })).filter((f) => f.endsWith(".mdx"))
-      const entries = await Promise.all(
-        files.map(async (f) => {
-          // Joined last, once markup is gone, so a phrase split across two source
-          // lines or around bold text still matches.
-          const text = searchText(await readFile(join(dir, f), "utf8"))
-          return ["/" + f.replace(/\.mdx$/, "").replaceAll("\\", "/"), text]
-        }),
-      )
-      return `export default ${JSON.stringify(Object.fromEntries(entries))}`
+      if (dev) return `export default ${JSON.stringify(base + "search-index.json")}`
+      const reference = this.emitFile({ type: "asset", name: "search-index.json", source: await indexJson() })
+      return `export default import.meta.ROLLUP_FILE_URL_${reference}`
     },
   }
 }
@@ -110,7 +122,8 @@ function bundledPackages(): Plugin {
   return {
     name: "bundled-packages",
     generateBundle(_, bundle) {
-      const packages = new Set<string>(["@fontsource-variable/inter"])
+      // CSS imports are compiled into an asset and do not appear in JS chunks.
+      const packages = new Set<string>(["@fontsource-variable/inter", "tailwindcss", "tw-animate-css"])
       for (const item of Object.values(bundle)) {
         if (item.type !== "chunk") continue
         for (const [id, module] of Object.entries(item.modules)) {

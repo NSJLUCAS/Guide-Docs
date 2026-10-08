@@ -15,6 +15,7 @@ const { chromium } = require(process.env.DOCS_PLAYWRIGHT_MODULE || 'playwright')
   const overflow = async () => assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `Horizontal overflow: ${page.url()}`)
   const screenshot = async name => {
     if (!process.env.DOCS_TEST_OUTPUT) return
+    await page.waitForTimeout(250) // let theme/color transitions finish
     await fs.mkdir(process.env.DOCS_TEST_OUTPUT, { recursive: true })
     await page.screenshot({ path: path.join(process.env.DOCS_TEST_OUTPUT, name + '.png'), fullPage: true })
   }
