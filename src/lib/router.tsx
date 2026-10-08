@@ -14,6 +14,10 @@ export const toPath = (loc: string) => {
 export function navigate(path: string) {
   history.pushState(null, "", href(path))
   dispatchEvent(new PopStateEvent("popstate"))
+  if (location.hash) requestAnimationFrame(() => requestAnimationFrame(() => {
+    try { document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView({ behavior: "instant" }) }
+    catch { /* malformed fragment is an invalid link, not a navigation crash */ }
+  }))
 }
 
 /** Current route. `initial` is what the server rendered, so hydration matches. */
@@ -29,7 +33,7 @@ export function usePath(initial: string) {
 }
 
 /** An <a> that stays on the page. External and modified clicks fall through. */
-export function A({ to, className, children, ...rest }: { to: string } & React.ComponentProps<"a">) {
+export function A({ to, className, children, onClick, ...rest }: { to: string } & React.ComponentProps<"a">) {
   // A .txt is a real file beside the pages rather than a route: it keeps the base
   // prefix but leaves the SPA.
   const away = /^(https?:)?\/\//.test(to) || to.endsWith(".txt")
@@ -39,10 +43,11 @@ export function A({ to, className, children, ...rest }: { to: string } & React.C
       className={cn(className)}
       {...(away ? { target: "_blank", rel: "noreferrer" } : {})}
       onClick={(e) => {
-        if (away || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return
+        onClick?.(e)
+        if (e.defaultPrevented || away || rest.target === "_blank" || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return
         e.preventDefault()
         navigate(to)
-        scrollTo({ top: 0 })
+        if (!location.hash) scrollTo({ top: 0, behavior: "instant" })
       }}
       {...rest}
     >

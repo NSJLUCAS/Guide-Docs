@@ -23,10 +23,15 @@ export function DialogContent({ children, className, showCloseButton = true, onO
     const dialog = ref.current
     if (!dialog) return
     const before = document.body.style.overflow
+    const focusBefore = document.activeElement
     document.body.style.overflow = "hidden"
     dialog.showModal()
     autoFocus.current?.(new Event("autofocus", { cancelable: true }))
-    return () => { dialog.close(); document.body.style.overflow = before }
+    return () => {
+      dialog.close()
+      document.body.style.overflow = before
+      if (focusBefore instanceof HTMLElement && focusBefore.isConnected) focusBefore.focus()
+    }
   }, [open])
   if (!open || typeof document === "undefined") return null
   return createPortal(<dialog ref={ref} aria-labelledby={titleId}
