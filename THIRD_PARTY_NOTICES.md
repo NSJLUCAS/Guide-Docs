@@ -6,8 +6,7 @@ source revision `a947822d790d5b7be4f2ee19474009e9415afbec`.
 
 Upstream: MIT License, Copyright (c) 2026 stqfdyr. The complete original license
 is retained unchanged in this directory's LICENSE and distributed as LICENSE.txt.
-Guide replaces product prose, navigation and branding and adds static delivery
-checks, SEO and Guide configuration. Upstream copyright is not replaced.
+Guide replaces the product prose, navigation and branding for this site.
 
 The UI foundations include components based on shadcn/ui (MIT, Copyright (c)
 2023 shadcn). Its original license is retained in licenses/shadcn-ui.txt and
@@ -17,13 +16,10 @@ ISC and upstream Feather MIT sections. Inter font has its SIL Open Font License.
 Builds collect the original license/notice files from the exact installed npm
 packages included in the browser bundle (including CSS packages and the bundled font). These texts are
 distributed in DEPENDENCY_LICENSES.txt; build tooling is not part of the browser
-runtime. Missing license text for a bundled package stops the build.
+runtime.
 
-The independent document package pins source-map-js to the patched version
-through its lockfile. Native HTML dialog replaces the Radix dialog wrapper while
-retaining its visual layout, avoiding distribution of react-remove-scroll-bar
-2.3.8 without its exact copyright text. Only the MIT-licensed Radix Slot remains.
-This does not modify Guide's backend or admin dependencies.
+Radix Slot is licensed under MIT, Copyright (c) 2022 WorkOS. Its original license
+is included in DEPENDENCY_LICENSES.txt.
 
 Guide product provenance and existing disclosures remain in the
 [Guide product THIRD_PARTY_NOTICES.md](https://github.com/NSJLUCAS/Guide/blob/main/THIRD_PARTY_NOTICES.md). Third-party icon catalogs or favicons selected by Guide
