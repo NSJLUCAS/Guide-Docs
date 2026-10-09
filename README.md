@@ -38,11 +38,11 @@ npm run preview
 | 生产 URL | `VITE_SITE_URL=https://你的文档域名` |
 | 自建 Guide 预览地址（可选） | `VITE_GUIDE_PREVIEW_URL`，确认真实地址后再设置 |
 
-使用已提交 package-lock.json；显式构建命令执行 npm ci。如需避免自动重复安装，设置 `SKIP_DEPENDENCY_INSTALL=1`。仅创建文档站的 Pages 项目；不创建独立静态演示站。文档站构建无需 Rust Hub、数据库、Functions、Workers API 或 API token，不复制上游自动部署工作流。自建 Guide 访客预览运行在维护者自己的产品部署环境，不使用 Pages 提供 Hub 后端。
+使用已提交 package-lock.json；显式构建命令执行 npm ci。如需避免自动重复安装，设置 `SKIP_DEPENDENCY_INSTALL=1`。文档站构建无需 Rust Hub、数据库、Functions、Workers API 或 API token。Cloudflare Pages 托管静态文档；Guide 实例需在自己的服务器上运行。
 
 `VITE_SITE_URL` 必须是无凭据、无路径/query/fragment 的 HTTP(S) origin；生产请用 HTTPS。缺省使用 `CF_PAGES_URL`；普通本地构建未提供域名时省略 canonical、生成禁止索引的 robots，避免编造官方域名。正式自定义域名务必设置此变量。Pages 分支预览使用可用的构建 URL，均禁止索引。
 
-`VITE_GUIDE_PREVIEW_URL` 只接受明确配置的无凭据 HTTP(S) 地址，生产请用 HTTPS。未配置时隐藏首页和顶栏预览入口，不编造域名，也不指向未上线站点。旧 `VITE_DEMO_URL` 已停止读取，应从后续构建配置中移除。文档编辑链接指向 `NSJLUCAS/Guide-Docs/edit/main/src/content`；产品、安装器与正式 Release 链接仍指向 `NSJLUCAS/Guide`。
+`VITE_GUIDE_PREVIEW_URL` 可选填真实的自建 Guide 地址，只接受无凭据 HTTP(S) 地址，生产请用 HTTPS。未配置时隐藏首页和顶栏预览入口。文档编辑链接指向 `NSJLUCAS/Guide-Docs/edit/main/src/content`；产品、安装器与正式 Release 链接仍指向 `NSJLUCAS/Guide`。
 
 在 Pages 的 Custom domains 中绑定用户控制的独立域名，按 Cloudflare 提示配置 DNS；然后设置生产 `VITE_SITE_URL` 并重新构建。操作说明见 [构建配置](https://developers.cloudflare.com/pages/configuration/build-configuration/)、[Monorepos](https://developers.cloudflare.com/pages/configuration/monorepos/) 和 [自定义域名](https://developers.cloudflare.com/pages/configuration/custom-domains/)。本项目不自动创建或部署远端站点。
 
@@ -60,6 +60,6 @@ npm run preview
 
 ## 仓库边界与历史
 
-本仓库根目录可独立安装、测试和构建，不依赖 Guide checkout 或 Hub。最终仅保留两个正式仓库：Guide 开发正式产品业务、主题、后台和发布工具；Guide-Docs 开发页面、MDX、搜索及文档 UI。文档内容核对正式 Guide v1.2.0；未发布功能不得写为正式功能。Guide-Demo 独立仓库和静态演示部署方案已取消。此仓库 CI 不部署 Pages，产品 Release 不自动触发文档发布；两仓库分别验证。
+本仓库根目录可独立安装、测试和构建，不依赖 Guide checkout 或 Hub。[Guide](https://github.com/NSJLUCAS/Guide) 负责正式产品业务、主题、后台和发布工具；[Guide-Docs](https://github.com/NSJLUCAS/Guide-Docs) 负责页面、MDX、搜索及文档 UI。文档内容核对正式 Guide v1.2.0，未发布功能不得写为正式功能。两仓库分别验证；本仓库 GitHub Actions 负责检查，Cloudflare Pages Git 集成负责文档部署，产品 Release 不自动触发文档发布。
 
 历史从原 sites/docs 导出，保留每次站点提交的作者、时间、消息和顺序，Guide 原历史未改写。来源及提交映射见 [MIGRATION.md](MIGRATION.md)。私有项目记忆、内部计划、验证日志不进入公开仓库。Cloudflare Pages 仅用于静态站，不提供 Guide Hub 后端。
