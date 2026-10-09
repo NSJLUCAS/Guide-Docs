@@ -10,12 +10,12 @@ const features = [
   { icon: Folder, title: "分类，按你的顺序", desc: "独立管理分类，保留空分类，按后台顺序组织导航。", path: "/usage/categories" },
   { icon: LayoutGrid, title: "布局，简单而灵活", desc: "标准、紧凑、极简三种卡片密度，适应桌面与手机。", path: "/usage/layout" },
   { icon: ShieldCheck, title: "管理，自己掌握", desc: "独立应急密码、可选 GitHub 登录。数据库和配置由你保管。", path: "/maintenance/security" },
-  { icon: Github, title: "源码，公开可查", desc: "基于 MIT 开源项目二次开发，正式版本与变更见 GitHub Releases。", path: "/guide/releases" },
+  { icon: Github, title: "版本，下载有据", desc: "从官方发布下载 Guide，查看版本变化和升级注意事项。", path: "/guide/releases" },
 ]
 export function Home() {
   return <main id="main-content" className="flex-1">
     <section className="mx-auto max-w-[88rem] px-4 pt-20 pb-16 text-center lg:px-8 lg:pt-32 lg:pb-24">
-      <p className="mb-6 text-sm text-muted-foreground">Guide 官方文档 · 功能基线 {RELEASE}</p>
+      <p className="mb-6 text-sm text-muted-foreground">Guide 官方文档 · 适用版本 {RELEASE}</p>
       <h1 className="mx-auto max-w-3xl text-4xl leading-[1.15] font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">常用网站，<br className="sm:hidden" />有序抵达。</h1>
       <p className="mx-auto mt-6 max-w-xl text-[1.0625rem] leading-[1.7] text-muted-foreground">你的自托管网站与服务导航。用分类整理入口，用状态了解服务，以简洁卡片连接每一次访问。</p>
       <div className="mt-9 flex flex-wrap items-center justify-center gap-3">

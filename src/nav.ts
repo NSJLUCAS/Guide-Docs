@@ -13,26 +13,21 @@ export const nav: Section[] = [
         "path": "/guide/quick-start",
         "label": "快速开始",
         "desc": "从部署或已有实例开始，登录后台并添加第一个网站。"
-      },
-      {
-        "path": "/guide/releases",
-        "label": "版本与预览",
-        "desc": "以正式 Releases 为准，了解版本范围和自建 Guide 访客预览。"
       }
     ]
   },
   {
-    "title": "部署",
+    "title": "安装",
     "items": [
       {
         "path": "/install/deployment",
         "label": "安装部署",
-        "desc": "官方安装器、SHA-256 校验、支持平台、默认目录与手工部署。"
+        "desc": "确认支持平台，校验安装包并在服务器上安装 Guide。"
       },
       {
         "path": "/install/reverse-proxy",
         "label": "域名与 HTTPS",
-        "desc": "本机监听、HTTPS 反向代理及域名访问的验证原则。"
+        "desc": "配置域名、HTTPS 反向代理并检查登录与访问。"
       }
     ]
   },
@@ -52,12 +47,12 @@ export const nav: Section[] = [
       {
         "path": "/usage/categories",
         "label": "分类管理",
-        "desc": "新增、更名、排序与空分类，了解计数及删除保护。"
+        "desc": "创建分类、调整顺序，了解空分类和删除保护。"
       },
       {
         "path": "/usage/icons",
         "label": "图标库与 favicon",
-        "desc": "HTTPS 图标库 JSON、浏览器 CORS、手动 favicon 和通用图标。"
+        "desc": "添加图标库、选择图片、获取网站 favicon 及排查加载失败。"
       },
       {
         "path": "/usage/checks",
@@ -80,20 +75,25 @@ export const nav: Section[] = [
         "desc": "独立应急密码、GitHub OAuth 白名单、会话和账号恢复。"
       },
       {
-        "path": "/maintenance/upgrade",
-        "label": "升级与回退",
-        "desc": "guide-update、旧实例接入、schema 迁移及完整快照恢复。"
-      },
-      {
         "path": "/maintenance/backup",
         "label": "数据备份",
         "desc": "管理员一致性备份、WAL/SHM、恢复限制及敏感数据保护。"
+      },
+      {
+        "path": "/maintenance/upgrade",
+        "label": "升级与回退",
+        "desc": "检查更新、接入旧实例，以及升级失败和回退时的数据保护。"
       }
     ]
   },
   {
     "title": "参考",
     "items": [
+      {
+        "path": "/guide/releases",
+        "label": "版本与下载",
+        "desc": "选择正式版本、获取安装包，并了解下载校验和版本差异。"
+      },
       {
         "path": "/reference/faq",
         "label": "常见问题",

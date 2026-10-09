@@ -2,11 +2,11 @@ Guide 支持本实例独立应急密码和可选 GitHub OAuth。没有官方统�
 
 ## 应急密码
 
-首次启动没有已保存 hash 时，生成独立随机密码并输出；官方首次安装也会初始化本实例随机密码。数据库只保存 Argon2id hash。
+首次安装时会生成本实例的随机应急密码，并在终端输出。请妥善保存，正常重启不会重新生成密码。
 
-第一次进入 `/admin/` 后，在“安全”页面改为自己的密码，至少 12 位。网页改密码会删除旧 session，并给当前浏览器签发新 session。没有强制自动改密或密码自动过期，管理员须自行完成。
+第一次进入 `/admin/` 后，在“安全”页面改为自己的密码，至少 12 位。修改后，其他浏览器的旧登录会失效，当前浏览器保持登录。密码不会自动过期，也不会强制首次修改，请主动完成。
 
-首次或 CLI reset 的输出可能留在终端、systemd journal 等日志中。在更换前把这些记录视作敏感数据。
+首次安装或终端重置的密码输出可能留在终端、systemd journal 等日志中。在更换前把这些记录视作敏感数据。
 
 ## GitHub OAuth
 
@@ -26,7 +26,7 @@ https://你的域名/api/auth/github/callback
 /opt/guide/guide-hub --db /var/lib/guide/guide.db --reset-password
 ```
 
-这是标准安装路径示例，自定义部署须替换程序和 DB 的绝对路径。CLI 输出新的随机密码，不接受明文新密码参数，不启动 HTTP 服务；全部旧 session 失效，但 GitHub OAuth 配置保留。登录后再设置自己的密码。
+这是标准安装路径示例，自定义部署须替换程序和数据库的绝对路径，并以有读写权限的系统用户执行。命令输出新的随机密码，不接受明文新密码参数，也不启动 HTTP 服务；全部旧登录失效，但 GitHub OAuth 配置保留。登录后再设置自己的密码。
 
 权限、systemd 与自建容器注意事项见[官方账号恢复说明](https://github.com/NSJLUCAS/Guide/blob/main/docs/deployment/AUTH_RECOVERY.md)。不要把示例路径误用于另一个实例。
 
