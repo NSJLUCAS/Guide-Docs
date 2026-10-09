@@ -44,11 +44,19 @@ const { chromium } = require(process.env.DOCS_PLAYWRIGHT_MODULE || 'playwright')
 
     await page.goto(base + '/')
     await screenshot('home-light-desktop')
-    await page.getByRole('link', { name: '查看演示', exact: true }).click()
-    await page.waitForURL('**/guide/releases#*')
-    await page.locator('h2#演示站').waitFor()
+    const preview = process.env.DOCS_EXPECT_GUIDE_PREVIEW_URL || ''
+    assert.equal(await page.getByRole('link', { name: '查看演示', exact: true }).count(), 0)
+    if (preview) {
+      assert.equal(await page.getByRole('link', { name: '预览 Guide', exact: true }).getAttribute('href'), preview)
+      assert.equal(await page.getByRole('link', { name: '预览', exact: true }).getAttribute('href'), preview)
+    } else {
+      assert.equal(await page.getByRole('link', { name: '预览 Guide', exact: true }).count(), 0)
+      assert.equal(await page.getByRole('link', { name: '预览', exact: true }).count(), 0)
+    }
+    await page.goto(base + '/guide/releases#访客预览')
+    await page.locator('h2#访客预览').waitFor()
     await page.waitForTimeout(250)
-    assert.ok((await page.locator('h2#演示站').boundingBox()).y < 200, 'Cross-page anchor must scroll to the demo section')
+    assert.ok((await page.locator('h2#访客预览').boundingBox()).y < 200, 'Linked section must scroll into view')
     await page.keyboard.press('Control+k')
     const search = page.getByRole('textbox', { name: '搜索文档关键词' })
     await search.fill('sudo sh ./install-guide.sh --check')

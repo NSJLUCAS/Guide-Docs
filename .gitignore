@@ -8,3 +8,10 @@ dist-ssr
 /docs/
 /CLAUDE.md
 /.claude/
+artifacts/
+.env*
+*.log
+*.pem
+*.key
+*.db*
+.superpowers/

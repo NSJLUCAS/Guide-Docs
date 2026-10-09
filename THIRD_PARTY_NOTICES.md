@@ -25,6 +25,6 @@ retaining its visual layout, avoiding distribution of react-remove-scroll-bar
 2.3.8 without its exact copyright text. Only the MIT-licensed Radix Slot remains.
 This does not modify Guide's backend or admin dependencies.
 
-Guide product provenance and existing disclosures remain in the repository's
-THIRD_PARTY_NOTICES.md. Third-party icon catalogs or favicons selected by Guide
+Guide product provenance and existing disclosures remain in the
+[Guide product THIRD_PARTY_NOTICES.md](https://github.com/NSJLUCAS/Guide/blob/main/THIRD_PARTY_NOTICES.md). Third-party icon catalogs or favicons selected by Guide
 administrators are not bundled with this documentation site or re-licensed by it.

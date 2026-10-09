@@ -54,7 +54,7 @@ export function App({ url }: { url: string }) {
 
               <div className="mt-14 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5 text-[0.8125rem] text-muted-foreground">
                 <a
-                  href={`${REPO_DOC}/edit/main/sites/docs/src/content${path}.mdx`}
+                  href={`${REPO_DOC}/edit/main/src/content${path}.mdx`}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"

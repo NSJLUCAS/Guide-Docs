@@ -8,3 +8,14 @@ export function resolveOrigin(env) {
   }
   return url.origin
 }
+
+export function resolveGuidePreview(env) {
+  const value = env.VITE_GUIDE_PREVIEW_URL?.trim() ?? ''
+  if (!value) return ''
+  let url
+  try { url = new URL(value) } catch { throw new Error('VITE_GUIDE_PREVIEW_URL must be a credential-free HTTP(S) URL') }
+  if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) {
+    throw new Error('VITE_GUIDE_PREVIEW_URL must be a credential-free HTTP(S) URL')
+  }
+  return url.href
+}

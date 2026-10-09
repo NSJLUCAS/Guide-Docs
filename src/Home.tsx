@@ -2,7 +2,7 @@ import { ArrowRight, Folder, Globe, LayoutGrid, ShieldCheck, Activity } from "lu
 import { GithubMark as Github } from "@/components/GithubMark"
 import { Button } from "@/components/ui/button"
 import { A } from "@/lib/router"
-import { REPO, DEMO, RELEASE } from "@/site"
+import { REPO, GUIDE_PREVIEW, RELEASE } from "@/site"
 
 const features = [
   { icon: Globe, title: "网站，一处收好", desc: "管理常用网站与服务，搜索、分类与图标让每次访问更直接。", path: "/usage/websites" },
@@ -20,7 +20,7 @@ export function Home() {
       <p className="mx-auto mt-6 max-w-xl text-[1.0625rem] leading-[1.7] text-muted-foreground">你的自托管网站与服务导航。用分类整理入口，用状态了解服务，以简洁卡片连接每一次访问。</p>
       <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
         <Button asChild size="lg"><A to="/guide/quick-start">快速开始<ArrowRight /></A></Button>
-        <Button asChild size="lg" variant="outline"><A to={DEMO}>查看演示</A></Button>
+        {GUIDE_PREVIEW && <Button asChild size="lg" variant="outline"><a href={GUIDE_PREVIEW} target="_blank" rel="noreferrer">预览 Guide</a></Button>}
         <Button asChild size="lg" variant="outline"><a href={REPO} target="_blank" rel="noreferrer"><Github className="size-4" />GitHub</a></Button>
       </div>
     </section>

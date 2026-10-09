@@ -5,6 +5,7 @@
 ## 本地开发与检查
 
 需要 Node.js 24/npm。在本目录执行：
+正文更新时间来自本仓库文件的 Git 历史，使用完整 clone；CI 已设置 `fetch-depth: 0`。
 
 ```sh
 npm ci
@@ -23,25 +24,25 @@ npm run preview
 
 ## Cloudflare Pages 配置
 
-创建独立 **Pages** GitHub 集成项目，连接 `NSJLUCAS/Guide`：
+创建独立 **Pages** GitHub 集成项目，连接独立仓库 `NSJLUCAS/Guide-Docs`：
 
 | 项目 | 值 |
 | --- | --- |
-| 生产分支 | `main`（合并后） |
+| 生产分支 | `main` |
 | 框架预设 | None / Vite |
-| 根目录 | `sites/docs` |
-| 构建命令 | `npm run build` |
+| 根目录 | 留空（仓库根） |
+| 构建命令 | `npm ci && npm run build` |
 | 输出目录 | `dist`（相对于根目录） |
-| Node 版本 | `NODE_VERSION=24` |
-| 构建监视路径 | `sites/docs/**` |
+| Node 版本 | `NODE_VERSION=24.14.1` |
+| 构建监视路径 | `**`（本仓库全部路径） |
 | 生产 URL | `VITE_SITE_URL=https://你的文档域名` |
-| 演示 URL（可选） | `VITE_DEMO_URL=https://已确认的演示地址` |
+| 自建 Guide 预览地址（可选） | `VITE_GUIDE_PREVIEW_URL`，确认真实地址后再设置 |
 
-Pages Git 集成自动安装依赖，使用已提交 package-lock.json。文档站和演示站使用各自独立 Pages 项目、根目录、构建监视路径和域名。无需 VPS、Rust Hub、数据库、Functions、Workers API 或 API token，不复制上游自动部署工作流。
+使用已提交 package-lock.json；显式构建命令执行 npm ci。如需避免自动重复安装，设置 `SKIP_DEPENDENCY_INSTALL=1`。仅创建文档站的 Pages 项目；不创建独立静态演示站。文档站构建无需 Rust Hub、数据库、Functions、Workers API 或 API token，不复制上游自动部署工作流。自建 Guide 访客预览运行在维护者自己的产品部署环境，不使用 Pages 提供 Hub 后端。
 
 `VITE_SITE_URL` 必须是无凭据、无路径/query/fragment 的 HTTP(S) origin；生产请用 HTTPS。缺省使用 `CF_PAGES_URL`；普通本地构建未提供域名时省略 canonical、生成禁止索引的 robots，避免编造官方域名。正式自定义域名务必设置此变量。Pages 分支预览使用可用的构建 URL，均禁止索引。
 
-`VITE_DEMO_URL` 未配置时，入口指向“演示站开发中”的说明；确认演示站上线后配置并重建。文档编辑链接指向 `main/sites/docs/src/content`，本分支合并前这些 GitHub 编辑地址尚未存在。
+`VITE_GUIDE_PREVIEW_URL` 只接受明确配置的无凭据 HTTP(S) 地址，生产请用 HTTPS。未配置时隐藏首页和顶栏预览入口，不编造域名，也不指向未上线站点。旧 `VITE_DEMO_URL` 已停止读取，应从后续构建配置中移除。文档编辑链接指向 `NSJLUCAS/Guide-Docs/edit/main/src/content`；产品、安装器与正式 Release 链接仍指向 `NSJLUCAS/Guide`。
 
 在 Pages 的 Custom domains 中绑定用户控制的独立域名，按 Cloudflare 提示配置 DNS；然后设置生产 `VITE_SITE_URL` 并重新构建。操作说明见 [构建配置](https://developers.cloudflare.com/pages/configuration/build-configuration/)、[Monorepos](https://developers.cloudflare.com/pages/configuration/monorepos/) 和 [自定义域名](https://developers.cloudflare.com/pages/configuration/custom-domains/)。本项目不自动创建或部署远端站点。
 
@@ -56,3 +57,9 @@ Pages Git 集成自动安装依赖，使用已提交 package-lock.json。文档�
 页面元数据和排序在 `src/nav.ts`，正文在 `src/content/**/*.mdx`。内部链接使用稳定绝对文档路径；命令块也进入全文搜索。新增或删除页面时同步导航，构建会检查一一对应及内部锚点。
 
 不复制私有项目记忆、内部计划、测试日志或服务器资料。每次内容更新核对正式 Release 和公开源码，开发中功能明确标注；维护文档不另外复制完整 Release Notes。依赖原许可从锁定安装包生成，修改依赖后重建并检查来源声明。
+
+## 仓库边界与历史
+
+本仓库根目录可独立安装、测试和构建，不依赖 Guide checkout 或 Hub。最终仅保留两个正式仓库：Guide 开发正式产品业务、主题、后台和发布工具；Guide-Docs 开发页面、MDX、搜索及文档 UI。文档内容核对正式 Guide v1.2.0；未发布功能不得写为正式功能。Guide-Demo 独立仓库和静态演示部署方案已取消。此仓库 CI 不部署 Pages，产品 Release 不自动触发文档发布；两仓库分别验证。
+
+历史从原 sites/docs 导出，保留每次站点提交的作者、时间、消息和顺序，Guide 原历史未改写。来源及提交映射见 [MIGRATION.md](MIGRATION.md)。私有项目记忆、内部计划、验证日志不进入公开仓库。Cloudflare Pages 仅用于静态站，不提供 Guide Hub 后端。

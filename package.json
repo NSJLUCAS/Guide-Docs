@@ -44,5 +44,13 @@
   },
   "engines": {
     "node": ">=24"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NSJLUCAS/Guide-Docs.git"
+  },
+  "homepage": "https://github.com/NSJLUCAS/Guide-Docs#readme",
+  "bugs": {
+    "url": "https://github.com/NSJLUCAS/Guide-Docs/issues"
   }
 }

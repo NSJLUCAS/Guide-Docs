@@ -7,7 +7,7 @@ import { Search } from "@/components/Search"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { Sidebar } from "@/components/Sidebar"
 import { A } from "@/lib/router"
-import { REPO, DEMO } from "@/site"
+import { REPO_DOC, GUIDE_PREVIEW } from "@/site"
 
 export function Header({ path }: { path: string }) {
   const [menu, setMenu] = useState(false)
@@ -17,9 +17,9 @@ export function Header({ path }: { path: string }) {
         <Button variant="ghost" size="icon-sm" className="lg:hidden" aria-label="目录" onClick={() => setMenu(true)}><Menu /></Button>
         <A to="/" className="flex items-baseline gap-2"><span className="font-semibold tracking-tight">Guide</span><span className="hidden text-xs text-muted-foreground sm:inline">文档</span></A>
         <div className="ml-auto flex items-center gap-1.5">
-          <A to={DEMO} className="hidden px-2 text-sm text-muted-foreground hover:text-foreground md:block">演示</A>
+          {GUIDE_PREVIEW && <a href={GUIDE_PREVIEW} target="_blank" rel="noreferrer" className="hidden px-2 text-sm text-muted-foreground hover:text-foreground md:block">预览</a>}
           <Search />
-          <Button variant="ghost" size="icon-sm" asChild aria-label="GitHub"><a href={REPO} target="_blank" rel="noreferrer"><GithubMark className="size-4" /></a></Button>
+          <Button variant="ghost" size="icon-sm" asChild aria-label="GitHub"><a href={REPO_DOC} target="_blank" rel="noreferrer"><GithubMark className="size-4" /></a></Button>
           <ThemeToggle />
         </div>
       </div>

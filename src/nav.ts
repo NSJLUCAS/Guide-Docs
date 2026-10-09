@@ -16,8 +16,8 @@ export const nav: Section[] = [
       },
       {
         "path": "/guide/releases",
-        "label": "版本与演示",
-        "desc": "以正式 Releases 为准，区分已发布功能与开发中的配套站点。"
+        "label": "版本与预览",
+        "desc": "以正式 Releases 为准，了解版本范围和自建 Guide 访客预览。"
       }
     ]
   },
