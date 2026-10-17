@@ -5,5 +5,5 @@ export const REPO_DOC = "https://github.com/NSJLUCAS/Guide-Docs"
 export const DOC_SOURCE = `${REPO_DOC}/tree/main/src/content`
 export const SITE = __SITE_URL__
 export const PREVIEW = __PREVIEW__
-export const RELEASE = "v1.2.0"
+export const RELEASE = "v1.2.4"
 export const GUIDE_PREVIEW = resolveGuidePreview(import.meta.env)

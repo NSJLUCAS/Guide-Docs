@@ -62,7 +62,7 @@ export const nav: Section[] = [
       {
         "path": "/usage/layout",
         "label": "卡片布局与主题",
-        "desc": "标准、紧凑和极简三种卡片布局，全站保存与深浅色切换。"
+        "desc": "三种卡片布局、分类抽屉、页脚动画与深浅色切换。"
       }
     ]
   },
@@ -72,7 +72,7 @@ export const nav: Section[] = [
       {
         "path": "/maintenance/security",
         "label": "登录与安全",
-        "desc": "独立应急密码、GitHub OAuth 白名单、会话和账号恢复。"
+        "desc": "私有模式、独立应急密码、GitHub OAuth 白名单和账号恢复。"
       },
       {
         "path": "/maintenance/backup",
