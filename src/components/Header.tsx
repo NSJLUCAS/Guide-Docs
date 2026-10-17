@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Menu } from "lucide-react"
 import { GithubMark } from "@/components/GithubMark"
+import { GuideMark } from "@/components/GuideMark"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Search } from "@/components/Search"
@@ -15,7 +16,7 @@ export function Header({ path }: { path: string }) {
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-[88rem] items-center gap-3 px-4 lg:px-8">
         <Button variant="ghost" size="icon-sm" className="lg:hidden" aria-label="目录" onClick={() => setMenu(true)}><Menu /></Button>
-        <A to="/" className="flex items-baseline gap-2"><span className="font-semibold tracking-tight">Guide</span><span className="hidden text-xs text-muted-foreground sm:inline">文档</span></A>
+        <A to="/" className="flex items-center gap-2"><GuideMark className="size-5" /><span className="font-semibold tracking-tight">Guide</span><span className="hidden text-xs text-muted-foreground sm:inline">文档</span></A>
         <div className="ml-auto flex items-center gap-1.5">
           {GUIDE_PREVIEW && <a href={GUIDE_PREVIEW} target="_blank" rel="noreferrer" className="hidden px-2 text-sm text-muted-foreground hover:text-foreground md:block">预览</a>}
           <Search />
